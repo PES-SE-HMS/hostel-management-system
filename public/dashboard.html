@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMS - Dashboard</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header><strong>HMS</strong><span><span id="who"></span> <button class="secondary" id="logout">Log out</button></span></header>
+<main>
+<section id="mine" class="hidden"><h2>My room</h2><div id="mineBody"></div></section>
+
+<section id="studentsSec" class="hidden"><h2>Student records</h2>
+<div id="addForm" class="hidden">
+<div class="grid">
+<div><label>SRN</label><input id="srn"></div><div><label>Name</label><input id="name"></div>
+<div><label>Email</label><input id="email"></div><div><label>Phone</label><input id="phone"></div>
+<div><label>Course</label><input id="course"></div><div><label>Year</label><input id="year" type="number" min="1" max="6"></div>
+</div><button id="addBtn">Add student</button> <span id="addMsg" class="msg"></span></div>
+<table><thead><tr><th>SRN</th><th>Name</th><th>Email</th><th>Course</th><th>Room</th></tr></thead><tbody id="stBody"></tbody></table></section>
+
+<section id="roomsSec"><h2>Room / bed availability</h2>
+<div id="allocForm" class="hidden grid">
+<div><label>Student</label><select id="allocStudent"></select></div>
+<div><label>Available bed</label><select id="allocBed"></select></div>
+<div><button id="allocBtn">Allocate</button></div></div><div id="allocMsg" class="msg"></div>
+<table><thead><tr><th>Room</th><th>Block</th><th>Floor</th><th>Bed</th><th>Status</th></tr></thead><tbody id="rmBody"></tbody></table></section>
+</main>
+<script src="/js/dashboard.js"></script></body></html>
