@@ -23,7 +23,7 @@ async function login(req, res) {
       res.json({ message: 'Login successful', user: req.session.user });
     });
   } catch (e) {
-    console.error('login error');
+    console.error('login error',e);
     res.status(500).json({ error: 'Server error' });
   }
 }
