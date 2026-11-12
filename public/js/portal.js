@@ -699,7 +699,8 @@ const sections = [
           ['From', r => esc(r.from_date)],
           ['To', r => esc(r.to_date)],
           ['Reason', r => esc(r.reason)],
-          ['Status', r => esc(r.status)]
+          ['Status', r => esc(r.status)],
+          ['Reviewed On', r => esc(r.reviewed_on || 'Pending review')]
         ], records);
       };
 
@@ -856,6 +857,7 @@ const sections = [
         <div class="grid">
           ${field('vName', 'Visitor Name')}
           ${field('vPurpose', 'Purpose')}
+          ${field('vVisitTime', 'Visit Date and Time', 'datetime-local', 'required')}
           ${field('vSrn', 'Student SRN (optional)')}
         </div>
 
@@ -886,11 +888,12 @@ const sections = [
       $('vAdd').onclick = async () => {
         const visitorName = $('vName').value.trim();
         const purpose = $('vPurpose').value.trim();
+        const visitTime = $('vVisitTime').value;
 
-        if (!visitorName || !purpose) {
+        if (!visitorName || !purpose || !visitTime) {
           msg($('vMsg'), {
             ok: false,
-            data: { error: 'Visitor name and purpose are required.' }
+            data: { error: 'Visitor name, purpose, and visit date/time are required.' }
           });
           return;
         }
@@ -901,6 +904,7 @@ const sections = [
           const result = await api('/api/visitors', 'POST', {
             visitor_name: visitorName,
             purpose,
+            visit_time: visitTime,
             srn: $('vSrn').value.trim()
           });
 
@@ -909,6 +913,7 @@ const sections = [
           if (result.ok) {
             $('vName').value = '';
             $('vPurpose').value = '';
+            $('vVisitTime').value = '';
             $('vSrn').value = '';
             await load();
           }

@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const { requireLogin } = require('./middleware/auth');
 
 const app = express();
 app.use(express.json());
@@ -24,6 +25,10 @@ app.use('/api/visitors', require('./routes/visitors'));
 app.use('/api/announcements', require('./routes/announcements'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+app.get('/portal.html', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'portal.html'));
+});
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.get('/', (req, res) => res.redirect('/login.html'));

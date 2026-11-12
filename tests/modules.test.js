@@ -135,3 +135,75 @@ test('TC-LEAVE-02: invalid leave requests are rejected', () => {
     }).length >= 2
   );
 });
+
+// FR-12 / FR-13 / FR-14: strict calendar validation and leave workflow input.
+const { isDate, isDateTime } = require('../src/utils/helpers');
+const { validateVisitor } = require('../src/controllers/visitorController');
+
+test('TC-LEAVE-03: impossible calendar dates are rejected', () => {
+  assert.strictEqual(isDate('2026-11-12'), true);
+  assert.strictEqual(isDate('2026-02-28'), true);
+  assert.strictEqual(isDate('2026-02-29'), false);
+  assert.strictEqual(isDate('2026-02-31'), false);
+  assert.strictEqual(isDate('2026-13-01'), false);
+  assert.strictEqual(isDate('12-11-2026'), false);
+});
+
+test('TC-LEAVE-04: leave request rejects impossible dates', () => {
+  assert.ok(validateLeave({
+    from_date: '2026-02-31',
+    to_date: '2026-03-02',
+    reason: 'Family function'
+  }).length > 0);
+});
+
+test('TC-VIS-01: visitor requires valid date and time', () => {
+  const valid = validateVisitor({
+    visitor_name: 'Test Visitor',
+    purpose: 'Meeting student',
+    visit_time: '2026-11-12T14:30'
+  });
+  assert.deepStrictEqual(valid.errors, []);
+  assert.strictEqual(valid.data.visitTime, '2026-11-12 14:30');
+});
+
+test('TC-VIS-02: visitor rejects missing or impossible date/time', () => {
+  assert.ok(validateVisitor({
+    visitor_name: 'Test Visitor',
+    purpose: 'Meeting student'
+  }).errors.length > 0);
+
+  assert.ok(validateVisitor({
+    visitor_name: 'Test Visitor',
+    purpose: 'Meeting student',
+    visit_time: '2026-02-31T14:30'
+  }).errors.length > 0);
+
+  assert.ok(validateVisitor({
+    visitor_name: 'Test Visitor',
+    purpose: 'Meeting student',
+    visit_time: '2026-11-12T25:61'
+  }).errors.length > 0);
+});
+
+
+// FR-16: announcements are filtered by intended audience.
+const { audiencesForRole } = require('../src/controllers/announcementController');
+test('TC-ANN-01: announcement audience is restricted by role', () => {
+  assert.deepStrictEqual(audiencesForRole('student'), ['all', 'students']);
+  assert.deepStrictEqual(audiencesForRole('maintenance'), ['all', 'staff']);
+  assert.deepStrictEqual(audiencesForRole('warden'), ['all', 'staff']);
+  assert.deepStrictEqual(audiencesForRole('admin'), ['all', 'students', 'staff']);
+});
+
+// FR-17: occupancy summary is consistent and handles empty inventories.
+const { occupancySummary } = require('../src/controllers/reportController');
+test('TC-REPORT-01: occupancy summary totals and percentage are correct', () => {
+  assert.deepStrictEqual(occupancySummary(10, 7), {
+    total_beds: 10, occupied_beds: 7, available_beds: 3, occupancy_percent: 70
+  });
+  assert.deepStrictEqual(occupancySummary(0, 0), {
+    total_beds: 0, occupied_beds: 0, available_beds: 0, occupancy_percent: 0
+  });
+  assert.strictEqual(occupancySummary(5, 9).occupied_beds, 5);
+});

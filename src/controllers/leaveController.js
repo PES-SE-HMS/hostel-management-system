@@ -7,6 +7,7 @@ function validate(b) {
   if (isDate(b.from_date) && isDate(b.to_date) && b.to_date < b.from_date) errors.push('to_date cannot be before from_date');
   const reason = String(b.reason || '').trim();
   if (reason.length < 3 || reason.length > 300) errors.push('reason must be 3-300 characters');
+  if (b.destination != null && String(b.destination).trim().length > 150) errors.push('destination must be at most 150 characters');
   return errors;
 }
 
